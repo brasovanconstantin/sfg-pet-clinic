@@ -5,9 +5,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import static guru.springframework.sfgpetclinic.constants.PageUri.FIND_OWNERS_URI;
+import static guru.springframework.sfgpetclinic.constants.PageUri.OWNERS_BASE_URI;
+import static guru.springframework.sfgpetclinic.constants.Views.NOT_IMPLEMENTED_VIEW;
+import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_VIEW;
+
 @Controller
-@RequestMapping("/owners")
+@RequestMapping(OWNERS_BASE_URI)
 public class OwnerController {
+
+    private static final String OWNERS_ATTRIBUTE = "owners";
 
     private final OwnerService ownerService;
 
@@ -17,13 +24,13 @@ public class OwnerController {
 
     @RequestMapping({"", "/", "/index", "/index.html"})
     public String listOwners(Model model) {
-        model.addAttribute("owners", ownerService.findAll());
+        model.addAttribute(OWNERS_ATTRIBUTE, ownerService.findAll());
 
-        return "owners/index";
+        return OWNERS_LIST_VIEW;
     }
 
-    @RequestMapping("/find")
+    @RequestMapping(FIND_OWNERS_URI)
     public String findOwners() {
-        return "notimplemented";
+        return NOT_IMPLEMENTED_VIEW;
     }
 }
