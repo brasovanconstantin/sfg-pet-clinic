@@ -3,21 +3,19 @@ package guru.springframework.sfgpetclinic.service.springdatajpa;
 import guru.springframework.sfgpetclinic.model.Vet;
 import guru.springframework.sfgpetclinic.repositories.VetRepository;
 import guru.springframework.sfgpetclinic.service.VetService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@RequiredArgsConstructor
 @Service
 @Profile("springdatajpa")
 public class VetSDJpaService implements VetService {
 
     private final VetRepository vetRepository;
-
-    public VetSDJpaService(VetRepository vetRepository) {
-        this.vetRepository = vetRepository;
-    }
 
     @Override
     public Set<Vet> findAll() {
