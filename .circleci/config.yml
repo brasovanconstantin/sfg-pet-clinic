@@ -22,4 +22,4 @@ jobs:
 
     steps:
       - checkout
-      - run: mvn clean install -Dmaven.test.skip
+      - run: mvn clean test
