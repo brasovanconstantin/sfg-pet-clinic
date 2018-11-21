@@ -33,7 +33,7 @@ jobs:
       - run: mvn dependency:go-offline
 
       - store_artifacts:
-         path: ~/repo
+         path: ~/.m2
 
       - save_cache:
           paths:
