@@ -40,5 +40,4 @@ jobs:
       # run tests!
       - run: mvn clean install
 
-      - store_artifacts:
-          path: ~/.m2
+      - persist_to_workspace:
