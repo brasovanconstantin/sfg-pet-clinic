@@ -22,5 +22,4 @@ jobs:
 
     steps:
       - checkout
-      - run: mvn dependency:go-offline
-      - run: mvn clean install
+      - run:mvn -DskipTests clean install dependency:resolve-plugins dependency:go-offline
