@@ -22,5 +22,5 @@ jobs:
 
     steps:
       - checkout
-      - run: mvn dependency: go-offline
+      - run: mvn dependency:go-offline
       - run: mvn clean install
