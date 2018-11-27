@@ -1,20 +1,28 @@
 package guru.springframework.sfgpetclinic.controller;
 
+import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.service.OwnerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 import static guru.springframework.sfgpetclinic.constants.PageUri.DISPLAY_OWNER_BY_ID_URI;
 import static guru.springframework.sfgpetclinic.constants.PageUri.FIND_OWNERS_URI;
 import static guru.springframework.sfgpetclinic.constants.PageUri.OWNERS_BASE_URI;
-import static guru.springframework.sfgpetclinic.constants.Views.NOT_IMPLEMENTED_VIEW;
+import static guru.springframework.sfgpetclinic.constants.Views.FIND_OWNERS_VIEW;
+import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_INDEX_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.OWNER_DETAILS_VIEW;
+import static java.util.Objects.isNull;
 
 @RequiredArgsConstructor
 @Controller
@@ -22,19 +30,51 @@ import static guru.springframework.sfgpetclinic.constants.Views.OWNER_DETAILS_VI
 public class OwnerController {
 
     private static final String OWNERS_ATTRIBUTE = "owners";
+    private static final String OWNER_ATTRIBUTE = "owner";
+    private static final String SELECTIONS_ATTRIBUTE = "selections";
 
     private final OwnerService ownerService;
 
-    @GetMapping({"", "/", "/index", "/index.html"})
+    @InitBinder
+    public void setAllowedFields(WebDataBinder dataBinder) {
+        dataBinder.setDisallowedFields("id");
+    }
+
+    @GetMapping({"/", "/index", "/index.html"})
     public String listOwners(Model model) {
         model.addAttribute(OWNERS_ATTRIBUTE, ownerService.findAll());
 
-        return OWNERS_LIST_VIEW;
+        return OWNERS_LIST_INDEX_VIEW;
     }
 
     @GetMapping(FIND_OWNERS_URI)
-    public String findOwners() {
-        return NOT_IMPLEMENTED_VIEW;
+    public String findOwners(Model model) {
+        model.addAttribute(OWNER_ATTRIBUTE, Owner.builder().build());
+
+        return FIND_OWNERS_VIEW;
+    }
+
+    @GetMapping("")
+    public String processFindForm(Owner owner, BindingResult result, Model model) {
+        if (isNull(owner.getLastName())) {
+            owner.setLastName("");
+        }
+
+        final List<Owner> owners = ownerService.findAllByLastName(owner.getLastName());
+
+        if (owners.isEmpty()) {
+            result.rejectValue("lastName", "notFound", "not found");
+
+            return FIND_OWNERS_VIEW;
+        } else if (owners.size() == 1) {
+            owner = owners.iterator().next();
+
+            return "redirect:/owners/" + owner.getId();
+        } else {
+            model.addAttribute(SELECTIONS_ATTRIBUTE, owners);
+
+            return OWNERS_LIST_VIEW;
+        }
     }
 
     @GetMapping(DISPLAY_OWNER_BY_ID_URI)

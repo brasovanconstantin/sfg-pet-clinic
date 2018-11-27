@@ -1,5 +1,6 @@
 package guru.springframework.sfgpetclinic.controller;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.service.OwnerService;
@@ -12,18 +13,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
 import java.util.Set;
 
 import static guru.springframework.sfgpetclinic.constants.PageUri.FIND_OWNERS_URI;
 import static guru.springframework.sfgpetclinic.constants.PageUri.OWNERS_BASE_URI;
-import static guru.springframework.sfgpetclinic.constants.Views.NOT_IMPLEMENTED_VIEW;
+import static guru.springframework.sfgpetclinic.constants.Views.FIND_OWNERS_VIEW;
+import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_INDEX_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.OWNER_DETAILS_VIEW;
+import static guru.springframework.sfgpetclinic.constants.Views.REDIRECT;
 import static guru.springframework.sfgpetclinic.util.TestConstants.FIRST_OWNER_ID;
 import static guru.springframework.sfgpetclinic.util.TestConstants.OWNERS_ATTRIBUTE;
 import static guru.springframework.sfgpetclinic.util.TestConstants.OWNER_ATTRIBUTE;
+import static guru.springframework.sfgpetclinic.util.TestConstants.OWNER_LAST_NAME;
 import static guru.springframework.sfgpetclinic.util.TestConstants.SECOND_OWNER_ID;
+import static guru.springframework.sfgpetclinic.util.TestConstants.SELECTIONS_ATTRIBUTE;
 import static guru.springframework.sfgpetclinic.util.TestEntityGenerator.createOwner;
+import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
@@ -60,8 +68,8 @@ class OwnerControllerTest {
 
         when(service.findAll()).thenReturn(owners);
 
-        mockMvc.perform(get(OWNERS_BASE_URI))
-            .andExpect(view().name(OWNERS_LIST_VIEW))
+        mockMvc.perform(get(OWNERS_BASE_URI + "/"))
+            .andExpect(view().name(OWNERS_LIST_INDEX_VIEW))
             .andExpect(model().attribute(OWNERS_ATTRIBUTE, hasSize(2)))
             .andExpect(model().attribute(OWNERS_ATTRIBUTE, is(owners)))
             .andExpect(status().isOk());
@@ -72,8 +80,51 @@ class OwnerControllerTest {
     @Test
     void findOwners() throws Exception {
         mockMvc.perform(get(OWNERS_BASE_URI + FIND_OWNERS_URI))
-            .andExpect(view().name(NOT_IMPLEMENTED_VIEW))
+            .andExpect(view().name(FIND_OWNERS_VIEW))
+            .andExpect(model().attributeExists(OWNER_ATTRIBUTE))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    void processFindFormReturnOne() throws Exception {
+        final Owner owner = createOwner(FIRST_OWNER_ID, OWNER_LAST_NAME);
+
+        when(service.findAllByLastName(OWNER_LAST_NAME)).thenReturn(ImmutableList.of(owner));
+
+        mockMvc.perform(get(OWNERS_BASE_URI)
+            .flashAttr(OWNER_ATTRIBUTE, owner))
+            .andExpect(view().name(REDIRECT + OWNERS_BASE_URI + "/" + owner.getId()))
+            .andExpect(status().is3xxRedirection());
+
+        verify(service).findAllByLastName(OWNER_LAST_NAME);
+    }
+
+    @Test
+    void processFindFormReturnMany() throws Exception {
+        final List<Owner> owners = ImmutableList.of(createOwner(FIRST_OWNER_ID, OWNER_LAST_NAME),
+            createOwner(SECOND_OWNER_ID, OWNER_LAST_NAME));
+
+        when(service.findAllByLastName(OWNER_LAST_NAME)).thenReturn(owners);
+
+        mockMvc.perform(get(OWNERS_BASE_URI)
+            .flashAttr(OWNER_ATTRIBUTE, owners.iterator().next()))
+            .andExpect(view().name(OWNERS_LIST_VIEW))
+            .andExpect(model().attribute(SELECTIONS_ATTRIBUTE, hasSize(2)))
+            .andExpect(model().attribute(SELECTIONS_ATTRIBUTE, owners))
+            .andExpect(status().isOk());
+
+        verify(service).findAllByLastName(OWNER_LAST_NAME);
+    }
+
+    @Test
+    void processFindFormLastNameNull() throws Exception {
+        when(service.findAllByLastName(EMPTY)).thenReturn(emptyList());
+
+        mockMvc.perform(get(OWNERS_BASE_URI))
+            .andExpect(view().name(FIND_OWNERS_VIEW))
+            .andExpect(status().isOk());
+
+        verify(service).findAllByLastName(EMPTY);
     }
 
     @Test
