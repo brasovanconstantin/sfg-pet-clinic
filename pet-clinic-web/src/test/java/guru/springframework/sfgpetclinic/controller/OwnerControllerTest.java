@@ -18,8 +18,10 @@ import static guru.springframework.sfgpetclinic.constants.PageUri.FIND_OWNERS_UR
 import static guru.springframework.sfgpetclinic.constants.PageUri.OWNERS_BASE_URI;
 import static guru.springframework.sfgpetclinic.constants.Views.NOT_IMPLEMENTED_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_VIEW;
+import static guru.springframework.sfgpetclinic.constants.Views.OWNER_DETAILS_VIEW;
 import static guru.springframework.sfgpetclinic.util.TestConstants.FIRST_OWNER_ID;
 import static guru.springframework.sfgpetclinic.util.TestConstants.OWNERS_ATTRIBUTE;
+import static guru.springframework.sfgpetclinic.util.TestConstants.OWNER_ATTRIBUTE;
 import static guru.springframework.sfgpetclinic.util.TestConstants.SECOND_OWNER_ID;
 import static guru.springframework.sfgpetclinic.util.TestEntityGenerator.createOwner;
 import static org.hamcrest.Matchers.hasSize;
@@ -72,5 +74,19 @@ class OwnerControllerTest {
         mockMvc.perform(get(OWNERS_BASE_URI + FIND_OWNERS_URI))
             .andExpect(view().name(NOT_IMPLEMENTED_VIEW))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    void displayOwner() throws Exception {
+        final Owner owner = createOwner(FIRST_OWNER_ID);
+
+        when(service.findById(FIRST_OWNER_ID)).thenReturn(owner);
+
+        mockMvc.perform(get(OWNERS_BASE_URI + "/1"))
+            .andExpect(view().name(OWNER_DETAILS_VIEW))
+            .andExpect(model().attribute(OWNER_ATTRIBUTE, is(owner)))
+            .andExpect(status().isOk());
+
+        verify(service).findById(FIRST_OWNER_ID);
     }
 }
