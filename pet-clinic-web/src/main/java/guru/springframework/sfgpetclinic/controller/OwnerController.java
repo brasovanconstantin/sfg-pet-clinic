@@ -34,10 +34,9 @@ import static java.util.Objects.isNull;
 @RequiredArgsConstructor
 @Controller
 @RequestMapping(OWNERS_BASE_URI)
-public class OwnerController {
+public class OwnerController extends BaseController {
 
     private static final String OWNERS_ATTRIBUTE = "owners";
-    private static final String OWNER_ATTRIBUTE = "owner";
     private static final String SELECTIONS_ATTRIBUTE = "selections";
     private static final String LIKE = "%";
 
