@@ -8,5 +8,5 @@ public interface OwnerService extends BaseCrudService<Owner, Long> {
 
     Owner findByLastName(String lastName);
 
-    List<Owner> findAllByLastName(String lastName);
+    List<Owner> findAllByLastNameLike(String lastName);
 }

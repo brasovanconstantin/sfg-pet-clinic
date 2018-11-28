@@ -32,6 +32,7 @@ public class OwnerController {
     private static final String OWNERS_ATTRIBUTE = "owners";
     private static final String OWNER_ATTRIBUTE = "owner";
     private static final String SELECTIONS_ATTRIBUTE = "selections";
+    private static final String LIKE = "%";
 
     private final OwnerService ownerService;
 
@@ -60,7 +61,7 @@ public class OwnerController {
             owner.setLastName("");
         }
 
-        final List<Owner> owners = ownerService.findAllByLastName(owner.getLastName());
+        final List<Owner> owners = ownerService.findAllByLastNameLike(LIKE + owner.getLastName() + LIKE);
 
         if (owners.isEmpty()) {
             result.rejectValue("lastName", "notFound", "not found");

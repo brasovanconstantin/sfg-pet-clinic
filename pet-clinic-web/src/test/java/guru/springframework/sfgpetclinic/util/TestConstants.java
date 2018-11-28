@@ -9,4 +9,5 @@ public class TestConstants {
     public static final String OWNERS_ATTRIBUTE = "owners";
     public static final String OWNER_ATTRIBUTE = "owner";
     public static final String SELECTIONS_ATTRIBUTE = "selections";
+    public static final String LIKE = "%";
 }

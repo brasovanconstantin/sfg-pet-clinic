@@ -24,6 +24,7 @@ import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_VIEW
 import static guru.springframework.sfgpetclinic.constants.Views.OWNER_DETAILS_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.REDIRECT;
 import static guru.springframework.sfgpetclinic.util.TestConstants.FIRST_OWNER_ID;
+import static guru.springframework.sfgpetclinic.util.TestConstants.LIKE;
 import static guru.springframework.sfgpetclinic.util.TestConstants.OWNERS_ATTRIBUTE;
 import static guru.springframework.sfgpetclinic.util.TestConstants.OWNER_ATTRIBUTE;
 import static guru.springframework.sfgpetclinic.util.TestConstants.OWNER_LAST_NAME;
@@ -89,14 +90,14 @@ class OwnerControllerTest {
     void processFindFormReturnOne() throws Exception {
         final Owner owner = createOwner(FIRST_OWNER_ID, OWNER_LAST_NAME);
 
-        when(service.findAllByLastName(OWNER_LAST_NAME)).thenReturn(ImmutableList.of(owner));
+        when(service.findAllByLastNameLike(LIKE + OWNER_LAST_NAME + LIKE)).thenReturn(ImmutableList.of(owner));
 
         mockMvc.perform(get(OWNERS_BASE_URI)
             .flashAttr(OWNER_ATTRIBUTE, owner))
             .andExpect(view().name(REDIRECT + OWNERS_BASE_URI + "/" + owner.getId()))
             .andExpect(status().is3xxRedirection());
 
-        verify(service).findAllByLastName(OWNER_LAST_NAME);
+        verify(service).findAllByLastNameLike(LIKE + OWNER_LAST_NAME + LIKE);
     }
 
     @Test
@@ -104,7 +105,7 @@ class OwnerControllerTest {
         final List<Owner> owners = ImmutableList.of(createOwner(FIRST_OWNER_ID, OWNER_LAST_NAME),
             createOwner(SECOND_OWNER_ID, OWNER_LAST_NAME));
 
-        when(service.findAllByLastName(OWNER_LAST_NAME)).thenReturn(owners);
+        when(service.findAllByLastNameLike(LIKE + OWNER_LAST_NAME + LIKE)).thenReturn(owners);
 
         mockMvc.perform(get(OWNERS_BASE_URI)
             .flashAttr(OWNER_ATTRIBUTE, owners.iterator().next()))
@@ -113,18 +114,18 @@ class OwnerControllerTest {
             .andExpect(model().attribute(SELECTIONS_ATTRIBUTE, owners))
             .andExpect(status().isOk());
 
-        verify(service).findAllByLastName(OWNER_LAST_NAME);
+        verify(service).findAllByLastNameLike(LIKE + OWNER_LAST_NAME + LIKE);
     }
 
     @Test
     void processFindFormLastNameNull() throws Exception {
-        when(service.findAllByLastName(EMPTY)).thenReturn(emptyList());
+        when(service.findAllByLastNameLike(LIKE + EMPTY + LIKE)).thenReturn(emptyList());
 
         mockMvc.perform(get(OWNERS_BASE_URI))
             .andExpect(view().name(FIND_OWNERS_VIEW))
             .andExpect(status().isOk());
 
-        verify(service).findAllByLastName(EMPTY);
+        verify(service).findAllByLastNameLike(LIKE + EMPTY + LIKE);
     }
 
     @Test
