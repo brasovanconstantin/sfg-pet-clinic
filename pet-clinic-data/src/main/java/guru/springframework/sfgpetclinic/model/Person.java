@@ -1,5 +1,6 @@
 package guru.springframework.sfgpetclinic.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import javax.persistence.MappedSuperclass;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @MappedSuperclass
 public class Person extends BaseEntity {

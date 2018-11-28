@@ -83,6 +83,7 @@ class OwnerMapServiceTest {
 
     @Test
     void findByLastName() {
+        ImmutableList.of(FIRST_OWNER_ID, SECOND_OWNER_ID).forEach(id -> ownerMapService.deleteById(id));
         ownerMapService.save(createOwner(THIRD_OWNER_ID, OWNER_LAST_NAME));
 
         assertThat(ownerMapService.findByLastName(OWNER_LAST_NAME))

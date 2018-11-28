@@ -16,9 +16,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 import java.util.Set;
 
+import static guru.springframework.sfgpetclinic.constants.PageUri.CREATE_OWNER_URI;
 import static guru.springframework.sfgpetclinic.constants.PageUri.FIND_OWNERS_URI;
 import static guru.springframework.sfgpetclinic.constants.PageUri.OWNERS_BASE_URI;
+import static guru.springframework.sfgpetclinic.constants.PageUri.PATH_SEPARATOR;
 import static guru.springframework.sfgpetclinic.constants.Views.FIND_OWNERS_VIEW;
+import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_CREATE_AND_UPDATE_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_INDEX_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.OWNERS_LIST_VIEW;
 import static guru.springframework.sfgpetclinic.constants.Views.OWNER_DETAILS_VIEW;
@@ -37,8 +40,10 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -69,7 +74,7 @@ class OwnerControllerTest {
 
         when(service.findAll()).thenReturn(owners);
 
-        mockMvc.perform(get(OWNERS_BASE_URI + "/"))
+        mockMvc.perform(get(OWNERS_BASE_URI + PATH_SEPARATOR))
             .andExpect(view().name(OWNERS_LIST_INDEX_VIEW))
             .andExpect(model().attribute(OWNERS_ATTRIBUTE, hasSize(2)))
             .andExpect(model().attribute(OWNERS_ATTRIBUTE, is(owners)))
@@ -94,7 +99,7 @@ class OwnerControllerTest {
 
         mockMvc.perform(get(OWNERS_BASE_URI)
             .flashAttr(OWNER_ATTRIBUTE, owner))
-            .andExpect(view().name(REDIRECT + OWNERS_BASE_URI + "/" + owner.getId()))
+            .andExpect(view().name(REDIRECT + OWNERS_BASE_URI + PATH_SEPARATOR + owner.getId()))
             .andExpect(status().is3xxRedirection());
 
         verify(service).findAllByLastNameLike(LIKE + OWNER_LAST_NAME + LIKE);
@@ -134,11 +139,67 @@ class OwnerControllerTest {
 
         when(service.findById(FIRST_OWNER_ID)).thenReturn(owner);
 
-        mockMvc.perform(get(OWNERS_BASE_URI + "/1"))
+        mockMvc.perform(get(OWNERS_BASE_URI + PATH_SEPARATOR + owner.getId()))
             .andExpect(view().name(OWNER_DETAILS_VIEW))
             .andExpect(model().attribute(OWNER_ATTRIBUTE, is(owner)))
             .andExpect(status().isOk());
 
         verify(service).findById(FIRST_OWNER_ID);
+    }
+
+    @Test
+    void initCreationForm() throws Exception {
+        final Owner owner = Owner.builder().build();
+
+        mockMvc.perform(get(OWNERS_BASE_URI + CREATE_OWNER_URI))
+            .andExpect(view().name(OWNERS_CREATE_AND_UPDATE_VIEW))
+            .andExpect(model().attribute(OWNER_ATTRIBUTE, is(owner)))
+            .andExpect(status().isOk());
+
+        verifyZeroInteractions(service);
+    }
+
+    @Test
+    void processCreationForm() throws Exception {
+        final Owner owner = createOwner(FIRST_OWNER_ID);
+
+        when(service.save(owner)).thenReturn(owner);
+
+        mockMvc.perform(post(OWNERS_BASE_URI + CREATE_OWNER_URI)
+            .flashAttr(OWNER_ATTRIBUTE, owner))
+            .andExpect(view().name(REDIRECT + OWNERS_BASE_URI + PATH_SEPARATOR + owner.getId()))
+            .andExpect(model().attribute(OWNER_ATTRIBUTE, is(owner)))
+            .andExpect(status().is3xxRedirection());
+
+        verify(service).save(owner);
+    }
+
+    @Test
+    void initUpdateOwnerForm() throws Exception {
+        final Owner owner = createOwner(FIRST_OWNER_ID);
+
+        when(service.findById(FIRST_OWNER_ID)).thenReturn(owner);
+
+        mockMvc.perform(get(OWNERS_BASE_URI + PATH_SEPARATOR + owner.getId() + "/edit"))
+            .andExpect(view().name(OWNERS_CREATE_AND_UPDATE_VIEW))
+            .andExpect(model().attribute(OWNER_ATTRIBUTE, is(owner)))
+            .andExpect(status().isOk());
+
+        verify(service).findById(FIRST_OWNER_ID);
+    }
+
+    @Test
+    void processUpdateOwnerForm() throws Exception {
+        final Owner owner = createOwner(FIRST_OWNER_ID);
+
+        when(service.save(owner)).thenReturn(owner);
+
+        mockMvc.perform(post(OWNERS_BASE_URI + PATH_SEPARATOR + owner.getId() + "/edit")
+            .flashAttr(OWNER_ATTRIBUTE, owner))
+            .andExpect(view().name(REDIRECT + OWNERS_BASE_URI + PATH_SEPARATOR + owner.getId()))
+            .andExpect(model().attribute(OWNER_ATTRIBUTE, is(owner)))
+            .andExpect(status().is3xxRedirection());
+
+        verify(service).save(owner);
     }
 }
