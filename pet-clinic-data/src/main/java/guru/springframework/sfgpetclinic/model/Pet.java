@@ -17,6 +17,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import static java.util.Objects.nonNull;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -43,11 +45,20 @@ public class Pet extends BaseEntity {
     private Set<Visit> visits = new HashSet<>();
 
     @Builder
-    public Pet(Long id, PetType petType, Owner owner, LocalDate birthDate, String name) {
+    public Pet(Long id,
+               PetType petType,
+               Owner owner,
+               LocalDate birthDate,
+               String name,
+               Set<Visit> visits) {
         super(id);
         this.petType = petType;
         this.owner = owner;
         this.birthDate = birthDate;
         this.name = name;
+
+        if (nonNull(visits) && !visits.isEmpty()) {
+            this.visits = visits;
+        }
     }
 }
