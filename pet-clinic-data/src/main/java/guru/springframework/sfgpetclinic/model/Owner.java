@@ -54,20 +54,9 @@ public class Owner extends Person {
     }
 
     public Pet getPet(String name, Boolean ignoreNew) {
-//        return ignoreNew ? null : pets.stream()
-//            .filter(pet -> !pet.isNew() && pet.getName().equalsIgnoreCase(name))
-//            .findFirst()
-//            .orElse(null);
-        name = name.toLowerCase();
-        for (Pet pet : pets) {
-            if (!ignoreNew || !isNew()) {
-                String compName = pet.getName();
-                compName = compName.toLowerCase();
-                if (compName.equals(name)) {
-                    return pet;
-                }
-            }
-        }
-        return null;
+        return ignoreNew ? null : pets.stream()
+            .filter(pet -> !pet.isNew() && pet.getName().equalsIgnoreCase(name))
+            .findFirst()
+            .orElse(null);
     }
 }

@@ -50,6 +50,8 @@ public class PetController extends BaseController {
     public String initCreationForm(Owner owner, Model model) {
         final Pet pet = Pet.builder().build();
         owner.getPets().add(pet);
+        pet.setOwner(owner);
+
         model.addAttribute(PET_ATTRIBUTE, pet);
 
         return PETS_CREATE_AND_UPDATE_VIEW;
